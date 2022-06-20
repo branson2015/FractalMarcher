@@ -14,6 +14,7 @@ endif()
 # set paths to find required libraries (leave blank for default)
 set(opengl_path "")
 set(glfw_path ${CMAKE_SOURCE_DIR}/vendor/glfw)
+set(glm_path ${CMAKE_SOURCE_DIR}/vendor/glm)
 set(openvkl_path ${CMAKE_SOURCE_DIR}/vendor/openvkl)
 set(glad_path ${CMAKE_SOURCE_DIR}/vendor/glad)
 
@@ -65,6 +66,10 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(${glfw_path})
 target_link_libraries(FractalMarcher PUBLIC glfw)
 
+#glm
+find_package(glm REQUIRED PATHS ${glm_path}/cmake)
+target_include_directories(FractalMarcher PRIVATE ${glm_path})
+
 # glad
 target_include_directories(FractalMarcher PRIVATE ${glad_path}/include)
 target_sources(FractalMarcher PRIVATE ${glad_path}/src/glad.c)
@@ -90,4 +95,8 @@ foreach(DLLFile ${DLLFiles})
   add_custom_command(TARGET FractalMarcher POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${openvkl_path}/bin/${DLLFile}.dll $<TARGET_FILE_DIR:FractalMarcher>
   )
-  endforeach()
+endforeach()
+#copy resources
+add_custom_command(TARGET FractalMarcher PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${FractalMarcher_SOURCE_DIR}/resources $<TARGET_FILE_DIR:FractalMarcher>/resources
+)
